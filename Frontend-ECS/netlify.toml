@@ -1,0 +1,9 @@
+[build]
+  base = "Frontend-ECS" # Path to your frontend folder
+  publish = "dist"      # Adjust to your build folder (e.g., 'build' for React or 'dist' for Vite)
+  command = "pnpm run build" # Replace with `pnpm run build` if using pnpm
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

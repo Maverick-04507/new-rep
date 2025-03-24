@@ -1,0 +1,13 @@
+.module-border-wrap {
+    /* max-width: 250px; */
+    padding: 1rem;
+    position: relative;
+    background: linear-gradient(to right, rgb(0, 140, 255), purple);
+    padding: 3px;
+  }
+  
+  .module {
+    background: #222;
+    color: white;
+    padding: 2rem;
+  }

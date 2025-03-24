@@ -1,0 +1,12 @@
+
+.image-container{
+  bottom: 0%;
+  margin-bottom: 0% !important;
+  clip-path: polygon(22% 0, 100% 0, 100% 85%, 75% 100%, 0 100%, 0 15%);
+}
+
+.image{
+  margin-bottom: 0% !important;
+}
+  
+  

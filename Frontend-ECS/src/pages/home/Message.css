@@ -1,0 +1,134 @@
+#naam {
+  font-family: "Lexend", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+p {
+  font-family: "Lexend", sans-serif;
+  font-weight: 400;
+}
+
+#naam2,
+h2 {
+  font-family: "Audiowide", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+ .polygon{
+  clip-path: polygon(30% 5%, 94% 5%, 94% 81%, 74% 95%, 6% 95%, 6% 20%);
+ }
+.swiper-button-prev-custom,
+.swiper-button-next-custom {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  width: 85px;
+  height: 37px;
+  transform: translateY(-1000%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.swiper-button-prev-custom {
+  left: -50%;
+}
+
+.swiper-button-next-custom {
+  right: -50%;
+}
+
+.swiper-button-prev-custom img,
+.swiper-button-next-custom img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.swiper-pagination-bullet {
+  position: relative;
+  width: 10px !important;
+  height: 10px !important;
+  background-color: #12d6df !important;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.5 !important;
+}
+
+.swiper-pagination-bullet-active {
+  position: relative;
+  width: 12px !important;
+  height: 12px !important;
+  background-color: #12d6df !important;
+  margin: 2px;
+  border-radius: 50%;
+  opacity: 1 !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .swiper-button-prev-custom,
+  .swiper-button-next-custom {
+    left: -20%;
+    right: -20%;
+  }
+
+  .msgImg {
+    margin-bottom: 30px;
+  }
+
+  .swiper-button-prev-custom,
+  .swiper-button-next-custom {
+    width: 50px;
+    height: 25px;
+  }
+
+  .swiper-button-prev-custom img,
+  .swiper-button-next-custom img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .flex {
+    flex-direction: column;
+  }
+
+  .mx-20 {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .image {
+    width: 100%;
+    height: auto;
+  }
+
+  .content-text {
+    font-size: 18px;
+  }
+
+  .name-text {
+    font-size: 28px;
+  }
+
+  .designation-text {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .name-text {
+    font-size: 24px;
+  }
+
+  .content-text {
+    font-size: 16px;
+  }
+
+  .designation-text {
+    font-size: 14px;
+  }
+}

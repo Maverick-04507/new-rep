@@ -1,0 +1,29 @@
+:root {
+    --opened: 60vh;
+    --closed: 18vh;
+    --fontSize: 0.65rem;
+}
+
+@media only screen and (min-width:400px) {
+    :root {
+        --opened: 30vh;
+        --closed: 15vh;
+        --fontSize: 0.7rem;
+    }
+}
+
+@media only screen and (min-width:500px) {
+    :root {
+        --opened: 50vh;
+        --closed: 15vh;
+        --fontSize: 0.9rem;
+    }
+}
+
+@media only screen and (min-width:600px) {
+    :root {
+        --opened: 50vh;
+        --closed: 15vh;
+        --fontSize: 1rem;
+    }
+}
