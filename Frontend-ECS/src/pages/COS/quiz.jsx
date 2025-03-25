@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import bgVid from './COS-BG.mp4';
-import './quiz.css';
 import axios from "axios";
 import useSWR from "swr";
 
@@ -141,77 +140,127 @@ const Quiz = () => {
   
   if (!isQuizStarted) {
     return (
-      <div className="flex flex-col fixed z-50 w-full min-h-screen items-center justify-center bg-gray-800">
-        <h2 className="text-3xl font-bold mb-4 text-white">Enter Your Username</h2>
-        <input
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          className="p-2 border-2 text-black border-gray-400 rounded mb-4"
-          placeholder="Username"
-        />
-        <button
-          onClick={startQuiz}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Start Quiz
-        </button>
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div className="relative z-10 w-full max-w-md p-8 rounded-2xl bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-xl">
+          <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            Enter Your Username
+          </h2>
+          <input
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+            placeholder="Username"
+          />
+          <button
+            onClick={startQuiz}
+            className="w-full mt-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
+          >
+            Start Quiz
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2 fixed z-50 w-full min-h-screen">
-      <video autoPlay loop muted className="absolute object-cover w-full h-full -z-30" src={bgVid} />
-      <div className="userinfo flex justify-around p-10 items-center">
-        <div className="username text-5xl font-semibold">{userName}</div>
-        <div className="time-remaining text-3xl font-semibold">Time Remaining: {timeRemaining}</div>
+    <div className="fixed w-[100vw] z-50 min-h-screen bg-slate-900 text-white overflow-hidden">
+      {/* Background video with overlay */}
+      <div className="absolute inset-0 z-0">
+        <video autoPlay loop muted className="absolute object-cover w-full h-full opacity-30">
+          <source src={bgVid} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 to-blue-900/10 backdrop-blur-sm"></div>
       </div>
-      <div className="module-border-wrap w-2/3 h-2/3 mobile:max-h-fit rounded-lg mx-auto">
-        <div className="bg-indigo-500 shadow-lg p-6 rounded-lg h-full w-full text-center module">
-          <div className="flex justify-between text-lg font-bold mb-4">
-            {!quizFinished ? (
-              <span>Question {currentQuestion + 1} / {questions.length}</span>
-            ) : null}
+
+      {/* Main content */}
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Header section */}
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">
+            {userName}
+          </h1>
+          <div className="text-2xl font-semibold text-blue-400">
+            Time Remaining: <span className="text-purple-400">{timeRemaining}</span>
           </div>
-          {quizFinished ? (
-            <div>
-              <h2 className="text-2xl font-bold">Quiz Completed!</h2>
-              <p className="text-lg my-4">Your Score: {score} / {questions.length}</p>
-              <button onClick={restartQuiz} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Restart Quiz
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col h-full justify-around pb-10">
-              {questions.length > 0 && (
-                <h2 className="text-4xl text-white font-semibold mb-4">
-                  {questions[currentQuestion].question}
-                </h2>
-              )}
-              <input
-                type="text"
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value)}
-                className="p-2 border-2 text-black border-gray-400 rounded"
-                placeholder="Type your answer here..."
-              />
-              <button
-                onClick={handleSubmit}
-                className="bg-green-500 text-white px-4 py-2 mt-4 rounded hover:bg-green-600"
-                disabled={questions.length === 0}
-              >
-                Submit Answer
-              </button>
-            </div>
-          )}
         </div>
-      </div>
-     
-      <div className="border border-red-600 w-[50vw] h-[20vh] mx-auto mt-4">
-        {data && <ul>
-            {data.map(item => <li key={item.userName}>{item.userName} - {item.score}</li>)}
-          </ul>}
+
+        {/* Quiz container */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8">
+            {!quizFinished ? (
+              <div className="space-y-8">
+                <div className="flex justify-between text-lg font-bold text-blue-400">
+                  <span>Question {currentQuestion + 1} / {questions.length}</span>
+                  <span>Score: {score}</span>
+                </div>
+                
+                {questions.length > 0 && (
+                  <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed">
+                    {questions[currentQuestion].question}
+                  </h2>
+                )}
+
+                <div className="space-y-6">
+                  <input
+                    type="text"
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                    className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+                    placeholder="Type your answer here..."
+                  />
+                  
+                  <button
+                    onClick={handleSubmit}
+                    disabled={questions.length === 0}
+                    className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Submit Answer
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center space-y-8">
+                <h2 className="text-4xl font-bold text-white">Quiz Completed!</h2>
+                <p className="text-2xl text-blue-400">
+                  Your Score: <span className="text-purple-400">{score}</span> / {questions.length}
+                </p>
+                <button
+                  onClick={restartQuiz}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
+                >
+                  Restart Quiz
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Leaderboard */}
+        <div className="mt-12 max-w-2xl mx-auto">
+          <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6">
+            <h3 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              Leaderboard
+            </h3>
+            {data && (
+              <div className="space-y-3">
+                {data.map((item, index) => (
+                  <div
+                    key={item.userName}
+                    className="flex justify-between items-center p-4 bg-slate-900/50 rounded-lg border border-slate-700 hover:border-blue-500/50 transition-all duration-300"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <span className="text-lg font-semibold text-blue-400">#{index + 1}</span>
+                      <span className="text-white">{item.userName}</span>
+                    </div>
+                    <span className="text-purple-400 font-bold">{item.score}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
