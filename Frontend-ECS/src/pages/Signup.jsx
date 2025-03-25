@@ -35,7 +35,7 @@ function Signup() {
         }
 
         try {
-            const res = await fetch("https://ecs-website.onrender.com/api/v1/users/register", {
+            const res = await fetch("https://new-rep-uw0m.onrender.com/api/v1/users/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
