@@ -13,6 +13,7 @@
     "@splinetool/react-spline": "^4.0.0",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.7.1",
+    "axios": "^1.8.4",
     "classnames": "^2.5.1",
     "framer-motion": "^11.17.0",
     "mdb-react-ui-kit": "^9.0.0",
