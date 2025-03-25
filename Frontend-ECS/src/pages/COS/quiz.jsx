@@ -16,7 +16,7 @@ const Quiz = () => {
   const [isQuizStarted, setIsQuizStarted] = useState(false);
 
   const fetcher = () =>
-    axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard").then(res => res.data);
+    axios.get("/api/v1/quiz/leaderboard").then(res => res.data);
 
   const { data, mutate } = useSWR("scores", fetcher);
 
@@ -25,7 +25,7 @@ const Quiz = () => {
     if (isQuizStarted) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions");
+          const response = await axios.get("/api/v1/quiz/questions");
           setQuestions(response.data);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -65,7 +65,7 @@ const Quiz = () => {
         points: score,
         completedAt: new Date().toISOString(),
       };
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData);
+      await axios.post("/api/v1/quiz/results", resultData);
     } catch (error) {
       console.error("Error storing result:", error);
     }
@@ -105,13 +105,11 @@ const Quiz = () => {
       score: newScore,
     };
     try {
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", leaderBoardData);
+      await axios.post("/api/v1/quiz/leaderboard", leaderBoardData);
       mutate(); 
     } catch (error) {
       console.error("Error updating leaderboard:", error);
     }
-  
-   
   };
   
 
