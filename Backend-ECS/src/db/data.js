@@ -1,27 +1,45 @@
 export const questions = [
   {
-      question: "What is React?",
-      answer: "library",  
+    questionText: "What animal is shown in the image?",
+    questionType: "image",
+    mediaUrl: "https://i.postimg.cc/nzs0Vw7s/Screenshot-2024-08-21-015059.png",
+    answer: "Anwesh Randi"
   },
   {
-      question: "What is Node.js?",
-      answer: "backend runtime",
+    questionText: "What is React?",
+    questionType: "text",
+    mediaUrl: null,  // Explicitly null for text-only questions
+    answer: "library"
   },
   {
-    question: "What is full Name of Iron Man?",
-    answer: "Antony Edward Stark",
+    questionText: "What is Node.js?",
+    questionType: "text",
+    mediaUrl: null,
+    answer: "backend runtime"
   },
   {
-  question: "Who plays captain america?",
-  answer: "Chris Evans",
-  }
-,
+    questionText: "What is the full name of Iron Man?",
+    questionType: "text",
+    mediaUrl: null,
+    answer: "Antony Edward Stark"
+  },
+
   {
-  question: "What is more sexy Scarlett Johansson or Elizabeth Olsen?",
-  answer: "Scarlett Johansson",
-  }, 
+    questionText: "Who plays Captain America?",
+    questionType: "text",
+    mediaUrl: null,
+    answer: "Chris Evans"
+  },
   {
-  question: "Who plays Black Widow?",
-  answer: "Scarlett Johansson",
+    questionText: "What is more sexy: Scarlett Johansson or Elizabeth Olsen?",
+    questionType: "text",
+    mediaUrl: null,
+    answer: "Scarlett Johansson"
+  },
+  {
+    questionText: "Who plays Black Widow?",
+    questionType: "text",
+    mediaUrl: null,
+    answer: "Scarlett Johansson"
   }
 ];

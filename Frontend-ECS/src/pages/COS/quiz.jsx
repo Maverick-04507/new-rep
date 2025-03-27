@@ -17,7 +17,7 @@ const Quiz = () => {
 
   // SWR fetcher for leaderboard data
   const fetcher = () =>
-    axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard").then(res => res.data);
+    axios.get("/api/v1/quiz/leaderboard").then(res => res.data);
   const { data, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
 
   // Fetch questions when the quiz starts
@@ -25,7 +25,7 @@ const Quiz = () => {
     if (isQuizStarted) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions");
+          const response = await axios.get("/api/v1/quiz/questions");
           setQuestions(response.data);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -61,11 +61,11 @@ const Quiz = () => {
       const resultData = {
         username: userName,
         answers: userAnswers,
-        attempts: 1,
+        Attempts: 1,
         points: score,
         completedAt: new Date().toISOString(),
       };
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData);
+      await axios.post("/api/v1/quiz/results", resultData);
     } catch (error) {
       console.error("Error storing result:", error);
     }
@@ -85,7 +85,6 @@ const Quiz = () => {
     };
     setUserAnswers(prev => [...prev, answerData]);
 
-    // Update score and move to the next question
     const nextQuestion = currentQuestion + 1;
     const newScore = isCorrect ? score + 1 : score;
     if (isCorrect) {
@@ -99,13 +98,12 @@ const Quiz = () => {
     
     setUserAnswer("");
 
-    // Update leaderboard
     const leaderBoardData = {
       userName: userName,
       score: newScore,
     };
     try {
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", leaderBoardData);
+      await axios.post("/api/v1/quiz/leaderboard", leaderBoardData);
       mutate();
     } catch (error) {
       console.error("Error updating leaderboard:", error);
@@ -190,17 +188,33 @@ const Quiz = () => {
         <div className="flex gap-6">
           {/* Quiz Questions Section (Left 70%) */}
           <div className="w-[70%]">
-            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8">
+            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8 h-[70vh] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {!quizFinished ? (
                 <div className="space-y-8">
-                  <div className="flex justify-between text-lg font-bold text-blue-400">
+                  <div className="flex justify-between text-lg font-bold text-blue-400 sticky top-0 bg-slate-800/70 backdrop-blur-xl z-10 py-2">
                     <span>Question {currentQuestion + 1} / {questions.length}</span>
                     <span>Score: {score}</span>
                   </div>
                   {questions.length > 0 && (
-                    <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed">
-                      {questions[currentQuestion].question}
-                    </h2>
+                    <div className="space-y-6">
+                      <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed whitespace-pre-wrap">
+                        {questions[currentQuestion].questionText}
+                      </h2>
+                      {/* Render media if present */}
+                      {questions[currentQuestion].questionType === "image" && questions[currentQuestion].mediaUrl && (
+                        <img
+                          src={questions[currentQuestion].mediaUrl}
+                          alt="Question media"
+                          className="max-w-full h-auto rounded-lg shadow-md"
+                        />
+                      )}
+                      {questions[currentQuestion].questionType === "audio" && questions[currentQuestion].mediaUrl && (
+                        <audio controls className="w-full">
+                          <source src={questions[currentQuestion].mediaUrl} type="audio/mpeg" />
+                          Your browser does not support the audio element.
+                        </audio>
+                      )}
+                    </div>
                   )}
                   <div className="space-y-6">
                     <input
