@@ -243,7 +243,7 @@ const Quiz = () => {
                 Leaderboard
               </h3>
               {data && (
-                <div className="space-y-3 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-slate-800">
+                <div className="space-y-3 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-slate-800 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {data.map((item, index) => (
                     <div
                       key={item.userName}
