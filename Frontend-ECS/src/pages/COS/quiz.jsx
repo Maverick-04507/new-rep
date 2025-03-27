@@ -17,7 +17,7 @@ const Quiz = () => {
 
   // SWR fetcher for leaderboard data
   const fetcher = () =>
-    axios.get("/api/v1/quiz/leaderboard").then(res => res.data);
+    axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard").then(res => res.data);
   const { data, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
 
   // Fetch questions when the quiz starts
@@ -25,7 +25,7 @@ const Quiz = () => {
     if (isQuizStarted) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("/api/v1/quiz/questions");
+          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions");
           setQuestions(response.data);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -65,7 +65,7 @@ const Quiz = () => {
         points: score,
         completedAt: new Date().toISOString(),
       };
-      await axios.post("/api/v1/quiz/results", resultData);
+      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData);
     } catch (error) {
       console.error("Error storing result:", error);
     }
@@ -105,7 +105,7 @@ const Quiz = () => {
       score: newScore,
     };
     try {
-      await axios.post("/api/v1/quiz/leaderboard", leaderBoardData);
+      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", leaderBoardData);
       mutate();
     } catch (error) {
       console.error("Error updating leaderboard:", error);
@@ -243,7 +243,7 @@ const Quiz = () => {
                 Leaderboard
               </h3>
               {data && (
-                <div className="space-y-3 overflow-y-auto flex-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="space-y-3 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-slate-800">
                   {data.map((item, index) => (
                     <div
                       key={item.userName}
