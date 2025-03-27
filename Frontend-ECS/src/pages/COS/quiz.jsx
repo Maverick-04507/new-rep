@@ -16,10 +16,19 @@ const Quiz = () => {
   const [isQuizStarted, setIsQuizStarted] = useState(false);
 
   // SWR fetcher for leaderboard data
-  const fetcher = () =>
-    axios.get("/api/v1/quiz/leaderboard").then(res => res.data);
+const fetcher = () =>
+  axios.get("/api/v1/quiz/leaderboard").then(res => {
+    console.log("Leaderboard response:", res.data);
+    return res.data;
+  }).catch(err => {
+    console.error("Leaderboard fetch error:", err);
+    throw err; // Let SWR handle the error state
+  });
   const { data, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
 
+  if(error){
+    console.error("SWR Error",error)
+  }
 
   // Fetch questions when the quiz starts
   useEffect(() => {
@@ -87,16 +96,17 @@ const Quiz = () => {
     setUserAnswers(prev => [...prev, answerData]);
 
     // Update score and move to the next question
+    const nextQuestion = currentQuestion + 1;
     const newScore = isCorrect ? score + 1 : score;
     if (isCorrect) {
       setScore(newScore);
+      if (nextQuestion < questions.length) {
+        setCurrentQuestion(nextQuestion);
+      } else {
+        setQuizFinished(true);
+      }
     }
-    const nextQuestion = currentQuestion + 1;
-    if (nextQuestion < questions.length) {
-      setCurrentQuestion(nextQuestion);
-    } else {
-      setQuizFinished(true);
-    }
+    
     setUserAnswer("");
 
     // Update leaderboard
@@ -238,12 +248,12 @@ const Quiz = () => {
 
           {/* Leaderboard Section (Right 30%) */}
           <div className="w-[30%]">
-            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6">
+            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6 h-[70vh] flex flex-col">
               <h3 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Leaderboard
               </h3>
               {data && (
-                <div className="space-y-3">
+                <div className="space-y-3 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-slate-800">
                   {data.map((item, index) => (
                     <div
                       key={item.userName}

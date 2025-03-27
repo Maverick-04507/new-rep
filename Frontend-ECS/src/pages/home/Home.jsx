@@ -31,6 +31,10 @@ export default function Home() {
                     </span>
                 </div>
 
+                <div className='pt-20 sm:flex justify-center'>
+                    <h1 className='text-4xl text-center font-semibold border w-[60vw]'>Chamber of Secrets is Live-Click to Enter the arena</h1>
+                </div>
+
             </div>
             <div className="pc:h-[90vh] mobile:h-[90vh]" ></div>
             <Message />
