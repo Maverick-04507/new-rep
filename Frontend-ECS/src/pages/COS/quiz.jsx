@@ -4,7 +4,7 @@ import axios from "axios";
 import useSWR from "swr";
 
 const Quiz = () => {
-  // State variables (unchanged)
+  // State variables
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -17,21 +17,16 @@ const Quiz = () => {
 
   // SWR fetcher for leaderboard data
   const fetcher = () =>
-    axios.get("/api/v1/quiz/leaderboard").then(res => {
-      console.log("Leaderboard response:", res.data);
-      return res.data;
-    }).catch(err => {
-      console.error("Leaderboard fetch error:", err);
-      throw err;
-    });
-  const { data, error, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
+    axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard").then(res => res.data);
+  const { data, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
 
-  // Fetch questions when the quiz starts (unchanged)
+
+  // Fetch questions when the quiz starts
   useEffect(() => {
     if (isQuizStarted) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("/api/v1/quiz/questions");
+          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions");
           setQuestions(response.data);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -41,7 +36,7 @@ const Quiz = () => {
     }
   }, [isQuizStarted]);
 
-  // Countdown timer logic (unchanged)
+  // Countdown timer logic until 22:00
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date();
@@ -61,7 +56,7 @@ const Quiz = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Store quiz result (unchanged)
+  // Store quiz result when finished
   const storeResult = async () => {
     try {
       const resultData = {
@@ -71,13 +66,13 @@ const Quiz = () => {
         points: score,
         completedAt: new Date().toISOString(),
       };
-      await axios.post("/api/v1/quiz/results", resultData);
+      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData);
     } catch (error) {
       console.error("Error storing result:", error);
     }
   };
 
-  // Handle answer submission (unchanged)
+  // Handle answer submission
   const handleSubmit = async () => {
     if (questions.length === 0) return;
 
@@ -91,6 +86,7 @@ const Quiz = () => {
     };
     setUserAnswers(prev => [...prev, answerData]);
 
+    // Update score and move to the next question
     const nextQuestion = currentQuestion + 1;
     const newScore = isCorrect ? score + 1 : score;
     if (isCorrect) {
@@ -101,29 +97,31 @@ const Quiz = () => {
         setQuizFinished(true);
       }
     }
+   
     
     setUserAnswer("");
 
+    // Update leaderboard
     const leaderBoardData = {
       userName: userName,
       score: newScore,
     };
     try {
-      await axios.post("/api/v1/quiz/leaderboard", leaderBoardData);
+      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", leaderBoardData);
       mutate();
     } catch (error) {
       console.error("Error updating leaderboard:", error);
     }
   };
 
-  // Store results when quiz is finished (unchanged)
+  // Store results when quiz is finished
   useEffect(() => {
     if (quizFinished) {
       storeResult();
     }
   }, [quizFinished]);
 
-  // Restart the quiz (unchanged)
+  // Restart the quiz
   const restartQuiz = () => {
     setCurrentQuestion(0);
     setScore(0);
@@ -132,7 +130,7 @@ const Quiz = () => {
     setUserAnswers([]);
   };
 
-  // Start the quiz (unchanged)
+  // Start the quiz if username is provided
   const startQuiz = () => {
     if (userName.trim() !== "") {
       setIsQuizStarted(true);
@@ -141,7 +139,7 @@ const Quiz = () => {
     }
   };
 
-  // Username entry screen
+  // If the quiz hasn't started yet, show the username entry component
   if (!isQuizStarted) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
@@ -168,9 +166,10 @@ const Quiz = () => {
     );
   }
 
-  // Main quiz layout
+  // Main quiz layout with a flex container for left (70%) and right (30%)
   return (
     <div className="fixed w-[100vw] z-50 min-h-screen bg-slate-900 text-white overflow-hidden">
+      {/* Background video with overlay */}
       <div className="absolute inset-0 z-0">
         <video autoPlay loop muted className="absolute object-cover w-full h-full opacity-30">
           <source src={bgVid} type="video/mp4" />
@@ -178,6 +177,7 @@ const Quiz = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 to-blue-900/10 backdrop-blur-sm"></div>
       </div>
 
+      {/* Header section */}
       <div className="relative z-10 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-12">
           <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">
@@ -188,7 +188,9 @@ const Quiz = () => {
           </div>
         </div>
 
+        {/* Main content area with 70-30 split */}
         <div className="flex gap-6">
+          {/* Quiz Questions Section (Left 70%) */}
           <div className="w-[70%]">
             <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8">
               {!quizFinished ? (
@@ -236,15 +238,14 @@ const Quiz = () => {
             </div>
           </div>
 
+          {/* Leaderboard Section (Right 30%) */}
           <div className="w-[30%]">
-            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6 h-[70vh] flex flex-col">
+            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6">
               <h3 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Leaderboard
               </h3>
-              {error ? (
-                <p className="text-red-400 text-center">Failed to load leaderboard</p>
-              ) : data && Array.isArray(data) ? (
-                <div className="space-y-3 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-slate-800">
+              {data && (
+                <div className="space-y-3">
                   {data.map((item, index) => (
                     <div
                       key={item.userName}
@@ -258,8 +259,6 @@ const Quiz = () => {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-white text-center">Loading leaderboard...</p>
               )}
             </div>
           </div>
