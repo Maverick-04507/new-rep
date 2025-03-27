@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import bgVid from './COS-BG.mp4';
 import axios from "axios";
 import useSWR from "swr";
+import { AuthContext } from "../../context/authContext"; // Adjust path as needed
+import Signin from "../Signin";
 
 const Quiz = () => {
-  // State variables
+  // State declarations
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -12,20 +15,40 @@ const Quiz = () => {
   const [userAnswer, setUserAnswer] = useState("");
   const [userAnswers, setUserAnswers] = useState([]);
   const [timeRemaining, setTimeRemaining] = useState("");
-  const [userName, setUserName] = useState("");
+  const [teamName, setTeamName] = useState("");
   const [isQuizStarted, setIsQuizStarted] = useState(false);
+  const audioRef = useRef(null);
 
-  // SWR fetcher for leaderboard data
+  // Auth context and navigation
+  const { isLoggedIn } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // SWR for leaderboard
   const fetcher = () =>
-    axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard").then(res => res.data);
-  const { data, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
+    axios
+      .get("/api/v1/quiz/leaderboard", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
+      })
+      .then((res) => res.data);
+  const { data: leaderboard, mutate } = useSWR(isLoggedIn ? "scores" : null, fetcher, {
+    refreshInterval: 5000,
+  });
 
-  // Fetch questions when the quiz starts
+  // Redirect if not logged in
   useEffect(() => {
-    if (isQuizStarted) {
+    if (!isLoggedIn) {
+      navigate("/sign-in");
+    }
+  }, [isLoggedIn, navigate]);
+
+  // Fetch questions when quiz starts
+  useEffect(() => {
+    if (isLoggedIn && isQuizStarted) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions");
+          const response = await axios.get("/api/v1/quiz/questions", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
+          });
           setQuestions(response.data);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -33,123 +56,157 @@ const Quiz = () => {
       };
       fetchQuestions();
     }
-  }, [isQuizStarted]);
+  }, [isLoggedIn, isQuizStarted]);
 
-  // Countdown timer logic until 22:00
+  // Autoplay audio when question changes
   useEffect(() => {
-    const calculateTimeLeft = () => {
+    if (
+      isQuizStarted &&
+      questions.length > 0 &&
+      questions[currentQuestion]?.questionType === "audio" &&
+      audioRef.current
+    ) {
+      audioRef.current.load();
+      audioRef.current.play().catch((err) => {
+        console.log("Autoplay blocked:", err);
+        setTimeout(() => audioRef.current.play(), 100);
+      });
+    }
+  }, [isQuizStarted, currentQuestion, questions]);
+
+  // Countdown timer
+  useEffect(() => {
+    const updateTimer = () => {
       const now = new Date();
-      const target = new Date();
-      target.setHours(22, 0, 0, 0);
-      if (now >= target) {
-        target.setDate(target.getDate() + 1);
-      }
-      const difference = target - now;
-      const hours = String(Math.floor((difference / (1000 * 60 * 60)) % 24)).padStart(2, '0');
-      const minutes = String(Math.floor((difference / (1000 * 60)) % 60)).padStart(2, '0');
-      const seconds = String(Math.floor((difference / 1000) % 60)).padStart(2, '0');
+      const target = new Date().setHours(22, 0, 0, 0);
+      const adjustedTarget = now > target ? target + 24 * 60 * 60 * 1000 : target;
+      const diff = adjustedTarget - now;
+      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, "0");
+      const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, "0");
+      const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, "0");
       setTimeRemaining(`${hours}:${minutes}:${seconds}`);
     };
 
-    const timer = setInterval(calculateTimeLeft, 1000);
+    const timer = setInterval(updateTimer, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Store quiz result when finished
-  const storeResult = async () => {
-    try {
-      const resultData = {
-        username: userName,
-        answers: userAnswers,
-        Attempts: 1,
-        points: score,
-        completedAt: new Date().toISOString(),
-      };
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData);
-    } catch (error) {
-      console.error("Error storing result:", error);
+  // Start quiz manually after team name entry
+  const startQuiz = () => {
+    if (teamName.trim()) {
+      setIsQuizStarted(true);
+    } else {
+      alert("Please enter your team name to start the quiz.");
     }
   };
 
-  // Handle answer submission
+  // Submit answer
   const handleSubmit = async () => {
-    if (questions.length === 0) return;
+    if (!questions.length) return;
 
     const currentQ = questions[currentQuestion];
     const isCorrect = userAnswer.trim().toLowerCase() === currentQ.answer.toLowerCase();
-
     const answerData = {
       questionId: currentQ._id,
       userAnswer: userAnswer.trim().toLowerCase(),
-      isCorrect: isCorrect,
+      isCorrect,
     };
-    setUserAnswers(prev => [...prev, answerData]);
 
-    const nextQuestion = currentQuestion + 1;
-    const newScore = isCorrect ? score + 1 : score;
+    setUserAnswers((prev) => [...prev, answerData]);
+    setUserAnswer("");
+
     if (isCorrect) {
+      const newScore = score + 1;
       setScore(newScore);
+      const nextQuestion = currentQuestion + 1;
       if (nextQuestion < questions.length) {
         setCurrentQuestion(nextQuestion);
       } else {
         setQuizFinished(true);
       }
-    }
-    
-    setUserAnswer("");
 
-    const leaderBoardData = {
-      userName: userName,
-      score: newScore,
-    };
-    try {
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", leaderBoardData);
-      mutate();
-    } catch (error) {
-      console.error("Error updating leaderboard:", error);
+      try {
+        await axios.post(
+          "/api/v1/quiz/leaderboard",
+          { userName: teamName, score: newScore },
+          { headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` } }
+        );
+        mutate();
+      } catch (error) {
+        console.error("Error updating leaderboard:", error);
+      }
     }
   };
 
-  // Store results when quiz is finished
-  useEffect(() => {
-    if (quizFinished) {
-      storeResult();
+  // Store result
+  const storeResult = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const scholarID = userData.currentUser?.scholar_ID || null;
+
+      const resultData = {
+        username: teamName,
+        scholar_ID: scholarID,
+        answers: userAnswers,
+        attempts: 1,
+        points: score,
+        completedAt: new Date().toISOString(),
+      };
+
+      await axios.post("/api/v1/quiz/results", resultData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
+      });
+    } catch (error) {
+      console.error("Error storing result:", error);
     }
+  };
+
+  // Trigger result storage when quiz finishes
+  useEffect(() => {
+    if (quizFinished) storeResult();
   }, [quizFinished]);
 
-  // Restart the quiz
+  // Restart quiz
   const restartQuiz = () => {
     setCurrentQuestion(0);
     setScore(0);
     setQuizFinished(false);
     setUserAnswer("");
     setUserAnswers([]);
+    setIsQuizStarted(false); // Reset to team name entry
+    setTeamName(""); // Clear team name
   };
 
-  // Start the quiz if username is provided
-  const startQuiz = () => {
-    if (userName.trim() !== "") {
-      setIsQuizStarted(true);
-    } else {
-      alert("Please enter your username to start the quiz.");
-    }
-  };
+  // Render: Not logged in
+  if (!isLoggedIn) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
+        <Signin />
+        <p className="text-center text-white mt-4">
+          Don’t have an account?{" "}
+          <a href="/sign-up" className="text-blue-400 hover:underline">
+            Sign Up
+          </a>
+        </p>
+      </div>
+    );
+  }
 
-  // If the quiz hasn't started yet, show the username entry component
+  // Render: Team name entry screen after login
   if (!isQuizStarted) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
         <div className="relative z-10 w-full max-w-md p-8 rounded-2xl bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-xl">
           <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-            Enter Your Username
+            Enter Your Team Name
           </h2>
           <input
             type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
             className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
-            placeholder="Username"
+            placeholder="Team Name"
           />
           <button
             onClick={startQuiz}
@@ -162,33 +219,29 @@ const Quiz = () => {
     );
   }
 
-  // Main quiz layout with a flex container for left (70%) and right (30%)
+  // Render: Main quiz UI
   return (
-    <div className="fixed w-[100vw] z-50 min-h-screen bg-slate-900 text-white overflow-hidden">
-      {/* Background video with overlay */}
+    <div className="fixed w-screen min-h-screen bg-slate-900 text-white overflow-hidden z-50">
       <div className="absolute inset-0 z-0">
-        <video autoPlay loop muted className="absolute object-cover w-full h-full opacity-30">
+        <video autoPlay loop muted className="object-cover w-full h-full opacity-30">
           <source src={bgVid} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 to-blue-900/10 backdrop-blur-sm"></div>
       </div>
 
-      {/* Header section */}
       <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-12">
+        <header className="flex justify-between items-center mb-12">
           <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">
-            {userName}
+            {teamName}
           </h1>
           <div className="text-2xl font-semibold text-blue-400">
             Time Remaining: <span className="text-purple-400">{timeRemaining}</span>
           </div>
-        </div>
+        </header>
 
-        {/* Main content area with 70-30 split */}
         <div className="flex gap-6">
-          {/* Quiz Questions Section (Left 70%) */}
-          <div className="w-[70%]">
-            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8 h-[70vh] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <section className="w-[70%]">
+            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8 h-[70vh] overflow-y-auto [scrollbar-width:none]">
               {!quizFinished ? (
                 <div className="space-y-8">
                   <div className="flex justify-between text-lg font-bold text-blue-400 sticky top-0 bg-slate-800/70 backdrop-blur-xl z-10 py-2">
@@ -200,20 +253,27 @@ const Quiz = () => {
                       <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed whitespace-pre-wrap">
                         {questions[currentQuestion].questionText}
                       </h2>
-                      {/* Render media if present */}
-                      {questions[currentQuestion].questionType === "image" && questions[currentQuestion].mediaUrl && (
-                        <img
-                          src={questions[currentQuestion].mediaUrl}
-                          alt="Question media"
-                          className="max-w-full h-auto rounded-lg shadow-md"
-                        />
-                      )}
-                      {questions[currentQuestion].questionType === "audio" && questions[currentQuestion].mediaUrl && (
-                        <audio controls className="w-full">
-                          <source src={questions[currentQuestion].mediaUrl} type="audio/mpeg" />
-                          Your browser does not support the audio element.
-                        </audio>
-                      )}
+                      {questions[currentQuestion].questionType === "image" &&
+                        questions[currentQuestion].mediaUrl && (
+                          <img
+                            src={questions[currentQuestion].mediaUrl}
+                            alt="Question media"
+                            className="max-w-full h-auto rounded-lg shadow-md"
+                          />
+                        )}
+                      {questions[currentQuestion].questionType === "audio" &&
+                        questions[currentQuestion].mediaUrl && (
+                          <audio
+                            ref={audioRef}
+                            controls
+                            autoPlay
+                            className="w-full"
+                            onError={(e) => console.error("Audio error:", e.nativeEvent)}
+                          >
+                            <source src={questions[currentQuestion].mediaUrl} type="audio/mpeg" />
+                            Your browser does not support the audio element.
+                          </audio>
+                        )}
                     </div>
                   )}
                   <div className="space-y-6">
@@ -226,7 +286,7 @@ const Quiz = () => {
                     />
                     <button
                       onClick={handleSubmit}
-                      disabled={questions.length === 0}
+                      disabled={!questions.length}
                       className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Submit Answer
@@ -248,17 +308,16 @@ const Quiz = () => {
                 </div>
               )}
             </div>
-          </div>
+          </section>
 
-          {/* Leaderboard Section (Right 30%) */}
-          <div className="w-[30%]">
+          <aside className="w-[30%]">
             <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6 h-[70vh] flex flex-col">
               <h3 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Leaderboard
               </h3>
-              {data && (
-                <div className="space-y-3 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-slate-800 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {data.map((item, index) => (
+              {leaderboard && (
+                <div className="space-y-3 overflow-y-auto flex-1 [scrollbar-width:none]">
+                  {leaderboard.map((item, index) => (
                     <div
                       key={item.userName}
                       className="flex justify-between items-center p-4 bg-slate-900/50 rounded-lg border border-slate-700 hover:border-blue-500/50 transition-all duration-300"
@@ -273,7 +332,7 @@ const Quiz = () => {
                 </div>
               )}
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </div>

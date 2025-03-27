@@ -1,8 +1,16 @@
+
+
 export const questions = [
   {
     questionText: "What animal is shown in the image?",
     questionType: "image",
     mediaUrl: "https://i.postimg.cc/nzs0Vw7s/Screenshot-2024-08-21-015059.png",
+    answer: "Anwesh Randi"
+  },
+  {
+    questionText: "What animal is shown in the image?",
+    questionType: "audio",
+    mediaUrl: "https://soundcloud.com/maverick-194043607/whatsapp-audio-2025-03-28-at?si=dec987717cd349c09a40c69f5a810063&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
     answer: "Anwesh Randi"
   },
   {

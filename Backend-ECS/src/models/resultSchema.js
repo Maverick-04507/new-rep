@@ -8,6 +8,10 @@ const resultSchema = new Schema({
         type: String,
         required: true,
     },
+    scholar_ID: { // New field for scholar_ID
+        type: Number,
+        required: true, // Set to false if it’s optional
+    },
     answers: [
         {
             questionId: {

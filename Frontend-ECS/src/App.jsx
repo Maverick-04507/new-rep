@@ -27,12 +27,12 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    // Save the current page to localStorage on route change
+   
     localStorage.setItem("lastPage", location.pathname);
   }, [location]);
 
   useEffect(() => {
-    // Redirect to the saved page on load
+   
     const lastPage = localStorage.getItem("lastPage");
     if (lastPage) {
       window.history.replaceState({}, "", lastPage);
