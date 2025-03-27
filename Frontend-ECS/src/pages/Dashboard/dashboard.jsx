@@ -23,7 +23,7 @@ const Dashboard = () => {
             const formData = new FormData();
             formData.append("avatar", file);
 
-            const response = await fetch("/api/v1/users/updateAvatar", {
+            const response = await fetch("https://new-rep-uw0m.onrender.com/api/v1/users/updateAvatar", {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accesstoken")}`, 
@@ -52,7 +52,7 @@ const Dashboard = () => {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("/api/v1/users/logout", {
+            const response = await fetch("https://new-rep-uw0m.onrender.com/api/v1/users/logout", {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accesstoken")}`, 

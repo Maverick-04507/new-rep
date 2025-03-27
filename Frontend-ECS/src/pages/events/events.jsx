@@ -32,19 +32,19 @@ const Events = () => {
 
   const Card = ({ title, description, image, link, isFitSection,isLITSection,isSpectrum,isTECHSection }) => {
     const [buttonImage, setButtonImage] = useState(
-      isLITSection || isTECHSection
+      isFitSection
         ? "https://i.postimg.cc/1506Lky2/Whats-App-Image-2025-01-15-at-21-04-35-dd05225e-removebg-preview.png"
-        : isFitSection
+        : isLITSection || isTECHSection
         ? "https://i.postimg.cc/cCnQ2P6k/Whats-App-Image-2025-01-15-at-20-26-14-1efc9130-removebg-preview.png"
         : "https://i.postimg.cc/mgjNYYv7/Component-2.png"
     );
     
 
     const handleMouseEnter = () => {
-      if (isFitSection) {
+      if (isLitSection||isTECHSection) {
         setButtonImage("https://i.postimg.cc/05CC71DZ/Whats-App-Image-2025-01-15-at-20-40-12-d54596a0-removebg-preview.png")
       }
-      else if(isLITSection || isTECHSection){
+      else if(isFitSection){
         setButtonImage("https://i.postimg.cc/MKJV36J1/Whats-App-Image-2025-01-15-at-21-05-01-cc2300b5-removebg-preview.png")
       }
       else{
@@ -53,10 +53,10 @@ const Events = () => {
     };
 
     const handleMouseLeave = () => {
-      if (isFitSection) {
+      if (isLitSection||isTECHSection) {
         setButtonImage("https://i.postimg.cc/cCnQ2P6k/Whats-App-Image-2025-01-15-at-20-26-14-1efc9130-removebg-preview.png")
       }
-      else if(isLITSection || isTECHSection){
+      else if(isFitSection){
         setButtonImage("https://i.postimg.cc/1506Lky2/Whats-App-Image-2025-01-15-at-21-04-35-dd05225e-removebg-preview.png")
       }
       else{
@@ -198,26 +198,36 @@ const Events = () => {
           title: "Fastweb",
           description: "Fast Web under Spectrum is an exciting web development hackathon where participants race against time to build innovative and functional websites. With creativity, coding skills, and teamwork, developers will tackle challenges and create solutions in a fast-paced environment.",
           image:
-            "https://i.postimg.cc/C1DkthT9/Whats-App-Image-2025-01-14-at-14-09-17-62f6c946.jpg",
+            "https://i.postimg.cc/4dKKqgmr/fastweb.jpg",
+            link:"https://docs.google.com/forms/d/e/1FAIpQLSfDPapk22mEg85scLuww1Xc7TJI0PMQDQsTmYVWU0aRlbXlig/viewform?usp=header"
         },
         {
           title: "Byte the Code",
           description: "Byte the Code under Spectrum is a thrilling competition for coding enthusiasts. It’s a platform where programmers can showcase their skills by solving complex problems, optimizing algorithms, and creating innovative solutions. Whether you're a beginner or a pro, it's the perfect opportunity",
           image:
-            "https://i.postimg.cc/N0ZRpyV1/Whats-App-Image-2025-01-14-at-14-09-19-6d448a8c.jpg",
+            "https://i.postimg.cc/rF2dn7cP/byte.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLSfAOdC4a7ePiPHyzLiczrPfMfBLAkIQcQ7a9jxv2CWbCUAmXA/viewform?usp=sharing"
         },
         {
           title: "Eniac",
           description: "Eniac under Spectrum is a competitive programming contest that brings together the brightest minds in coding. Participants tackle complex algorithmic challenges, race against time, and demonstrate their problem-solving prowess. It’s a true test of logic, speed, and programming skills.",
           image:
-            "https://i.postimg.cc/mksCWvTk/Whats-App-Image-2025-01-14-at-14-09-20-3a322487.jpg",
+            "https://i.postimg.cc/KYpk0zvP/eniac.jpg",
+            link:"https://docs.google.com/forms/d/e/1FAIpQLSeNXNokP1yAQlKoL8hg8TWDuRMIPx5ppZIu4D6eq8-F2feL3w/viewform?usp=header"
         },
         {
           title: "Smartdroid",
           description: "Smartdroid under Spectrum is an exciting Android development hackathon where participants innovate and build cutting-edge mobile applications. Using their knowledge of Android development, coders race against the clock to create functional and user-friendly apps, solving real-world problems.",
           image:
-            "https://i.postimg.cc/pdmDfQ0W/Whats-App-Image-2025-01-14-at-14-09-21-a703fd53.jpg",
+            "https://i.postimg.cc/gjkVn5Js/smartdroid.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLSc91fuv9bnT0QWw8kJaJSTznCj1d3xycPWyRIXOpgxhSsJCGQ/viewform?usp=header"
         },
+        {
+          title:"Curve Crafters",
+          description:"Unleash your creativity in Curve Crafters, an exciting challenge inspired by Desmos Marbleslide! Tweak equations, solve mind-bending puzzles, and compete in a thrilling mathematical showdown.Whether you're a math whiz or a problem-solver, this is your chance to prove your skills.",
+          image:"https://i.postimg.cc/65V8Dzp5/curve.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLSd5W60QDwKm2OW_DZfupNDaqqkOqCiGqSkJf9P3b7URLZwBEQ/viewform?usp=header"
+        }
       ],
     },
     {
@@ -227,61 +237,76 @@ const Events = () => {
           title: "Poesis",
           description: "Poetry holds the extraordinary power to touch hearts profoundly. It gives voice to emotions and feelings through words. Spectrum  proudly presents POESIS, a stage to celebrate and showcase talented poets",
           image:
-            "https://i.postimg.cc/13Lnwkbt/Whats-App-Image-2025-01-15-at-18-09-07-8295c63e.jpg",
+            "https://i.postimg.cc/FHfxy2xn/poesis.jpg",
+          link:"https://forms.gle/aFMuBgZUUx6QCKpU8"
         },
         {
           title: "Moments",
           description: "Photographers are silent storytellers, capturing emotions and tales too intricate for words.Spectrum proudly presents Moments, a dedicated segment to showcase these timeless snapshots.",
           image:
-            "https://i.postimg.cc/Zqp9cfhL/Whats-App-Image-2025-01-15-at-18-09-06-5c1f0a83.jpg",
+            "https://i.postimg.cc/QdRJ004N/moments.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLSf6g5Vt7Od5L7VVO4nC5B3KbooClr1H0GQ19_r_fygViRpnzw/viewform?usp=header"
+        },
+        {
+          title:"Shabd Showdown",
+          description:"Ready to test your wit, spontaneity, and persuasion? SHABD SHOWDOWN is a thrilling battle of words full of surprises! Whether you're a seasoned speaker or stepping out of your comfort zone, this competition will challenge and excite you.",
+          image:"https://i.postimg.cc/cHWMN6GV/shabd.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLSf9-wXiLDkbFaYEnT_c6qmq8fUYsyoDlhC6IXsTcMhP2Elztg/viewform?usp=header"
         },
         {
           title: "Minimalist",
           description: "Spectrum proudly presents Minimalist, a creative doodling contest where simplicity meets imagination. Let your ideas flow through minimal strokes and shapes, proving that less can indeed speak volumes.",
           image:
-            "https://i.postimg.cc/g05tP2wD/Whats-App-Image-2025-01-14-at-14-09-18-cc315aa1.jpg",
+            "https://i.postimg.cc/0NDd3DFY/minimalist.jpg",
+            link:"https://docs.google.com/forms/d/e/1FAIpQLSdq7gbnP8c78gDDGjKQxrzdQL9E53LWvKqW-M7bVrUsqpOaPA/viewform?usp=header"
         },
         {
           title: "Knock Your Heads",
           description: "Knock Your Heads is an exciting quiz competition under Spectrum, designed to challenge your intellect and test your knowledge across diverse domains.",
           image:
-            "https://i.postimg.cc/6QTbSvQq/Whats-App-Image-2025-01-14-at-14-09-18-5d2cbd4e.jpg",
+            "https://i.postimg.cc/vHZhB1xy/knock.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLScRULTdHGjRbIiWpvuQNS3njjZFsi6-FS_JbLn7VRGeLxsPGQ/viewform?usp=header"
         },
         {
           title: "Memecraft",
           description: "Get ready to tickle funny bones with Memecraft, the ultimate meme competition! Unleash your creativity, and humor to craft memes that speak louder than words. ",
           image:
-            "https://i.postimg.cc/13mjGThp/Whats-App-Image-2025-01-14-at-14-09-18-a7a58cbe.jpg",
+            "https://i.postimg.cc/BQ7g1q2K/memecraft.jpg",
+            link:"https://docs.google.com/forms/d/18gcR61bIRGvCeh1RCDAR0fSsxsP07gfS3QMiEKH2ffc/edit"
         },
         {
           title: "Electrohunt",
           description: "Gear up for Electrohunt, the thrilling treasure hunt competition! Put your problem-solving skills to the test as you decode clues, unravel mysteries, and chase hidden treasures.",
           image:
-            "https://i.postimg.cc/1XDjB13K/Whats-App-Image-2025-01-14-at-14-09-22-4be01527.jpg",
+            "https://i.postimg.cc/vZz66hJS/electrohunt.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLSdB_nJc-P0Lx8mc2tSo5l0odV1Doy5aemkZszAzLMoTDaF_jQ/viewform?usp=header"
         },
         {
           title: "IPL Auction",
           description: "IPL Auction is an exciting event under Spectrum, where strategy and sportsmanship collide! Teams bid, talents are discovered, and the thrill of cricket takes center stage.",
           image:
-            "https://i.postimg.cc/rwfYQJM7/Whats-App-Image-2025-01-14-at-14-09-19-9decc442.jpg",
+            "https://i.postimg.cc/NFmKGk8D/ipl.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLScfyQ4Bxk1QapDt2zzJb2kYPcWiTivR7vfITr9Ma4K48qBemA/viewform?usp=sharing"
         },
-        {
-          title: "Open Mic",
-          description: "Open Mic under Spectrum is the perfect platform to express your creativity in your own unique way. Whether through poetry, storytelling, music, or comedy, it's your moment to shine.",
-          image:
-            "https://i.postimg.cc/tTsgMXfP/Screenshot-2025-03-16-234239.png",
-        },
+        // {
+        //   title: "Open Mic",
+        //   description: "Open Mic under Spectrum is the perfect platform to express your creativity in your own unique way. Whether through poetry, storytelling, music, or comedy, it's your moment to shine.",
+        //   image:
+        //     "https://i.postimg.cc/tTsgMXfP/Screenshot-2025-03-16-234239.png",
+        // },
         {
           title: "Chamber of Secrets",
           description: "Chamber of Secrets under Spectrum is an exhilarating puzzle competition where participants must decode a website-crashing mystery. Dive into a world of cryptic clues",
           image:
-            "https://i.postimg.cc/ry43MxNt/Whats-App-Image-2025-01-14-at-14-09-21-f249a60f.jpg",
+            "https://i.postimg.cc/gcZXKG9h/chamver.jpg",
+          link:"https://docs.google.com/forms/d/e/1FAIpQLSftQM0Ok7RiI-mNUaWDW9-n5lnjjRpgGshOLdkDIVEeq7LWKw/viewform?usp=header"
         },
         {
           title: "Get Hired",
           description: "Get Hired under Spectrum is more than just an interview competition. It’s a dynamic challenge that tests your overall professional skills, from communication and problem-solving to creativity and teamwork.",
           image:
-            "https://i.postimg.cc/jdQ1JT9x/Whats-App-Image-2025-01-14-at-14-09-20-6d798c7c.jpg",
+            "https://i.postimg.cc/TwZyX4bh/gethired.jpg",
+            link:"https://docs.google.com/forms/d/e/1FAIpQLScOVTAWE4C9EdHoGKEJFMq1L4nurrEe-pOW7qixrhUU4cb-eA/viewform?usp=header"
         },
       ],
     },
@@ -305,7 +330,7 @@ const Events = () => {
                 description={card.description}
                 image={card.image}
                 link={card.link}
-          
+               
                 isFitSection={category.title === "SPECTRUM-FIT"}
                 isLITSection={category.title==="SPECTRUM- LIT"}
                 isTECHSection={category.title==="SPECTRUM-TECH"}
