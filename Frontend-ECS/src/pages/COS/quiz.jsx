@@ -4,6 +4,7 @@ import axios from "axios";
 import useSWR from "swr";
 
 const Quiz = () => {
+  // State variables
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -13,12 +14,13 @@ const Quiz = () => {
   const [timeRemaining, setTimeRemaining] = useState("");
   const [userName, setUserName] = useState("");
   const [isQuizStarted, setIsQuizStarted] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false); // New state for mobile leaderboard toggle
 
+  // SWR fetcher for leaderboard data
   const fetcher = () =>
     axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard").then(res => res.data);
-  const { data, error, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
+  const { data, mutate } = useSWR("scores", fetcher, { refreshInterval: 5000 });
 
+  // Fetch questions when the quiz starts
   useEffect(() => {
     if (isQuizStarted) {
       const fetchQuestions = async () => {
@@ -33,6 +35,7 @@ const Quiz = () => {
     }
   }, [isQuizStarted]);
 
+  // Countdown timer logic until 22:00
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date();
@@ -47,10 +50,12 @@ const Quiz = () => {
       const seconds = String(Math.floor((difference / 1000) % 60)).padStart(2, '0');
       setTimeRemaining(`${hours}:${minutes}:${seconds}`);
     };
+
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  // Store quiz result when finished
   const storeResult = async () => {
     try {
       const resultData = {
@@ -66,16 +71,21 @@ const Quiz = () => {
     }
   };
 
+  // Handle answer submission
   const handleSubmit = async () => {
     if (questions.length === 0) return;
+
     const currentQ = questions[currentQuestion];
     const isCorrect = userAnswer.trim().toLowerCase() === currentQ.answer.toLowerCase();
+
     const answerData = {
       questionId: currentQ._id,
       userAnswer: userAnswer.trim().toLowerCase(),
       isCorrect: isCorrect,
     };
     setUserAnswers(prev => [...prev, answerData]);
+
+    // Update score and move to the next question
     const nextQuestion = currentQuestion + 1;
     const newScore = isCorrect ? score + 1 : score;
     if (isCorrect) {
@@ -86,7 +96,10 @@ const Quiz = () => {
         setQuizFinished(true);
       }
     }
+    
     setUserAnswer("");
+
+    // Update leaderboard
     const leaderBoardData = {
       userName: userName,
       score: newScore,
@@ -99,12 +112,14 @@ const Quiz = () => {
     }
   };
 
+  // Store results when quiz is finished
   useEffect(() => {
     if (quizFinished) {
       storeResult();
     }
   }, [quizFinished]);
 
+  // Restart the quiz
   const restartQuiz = () => {
     setCurrentQuestion(0);
     setScore(0);
@@ -113,6 +128,7 @@ const Quiz = () => {
     setUserAnswers([]);
   };
 
+  // Start the quiz if username is provided
   const startQuiz = () => {
     if (userName.trim() !== "") {
       setIsQuizStarted(true);
@@ -121,12 +137,13 @@ const Quiz = () => {
     }
   };
 
+  // If the quiz hasn't started yet, show the username entry component
   if (!isQuizStarted) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50 px-4">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-        <div className="relative z-10 w-full max-w-md p-6 rounded-2xl bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-xl">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+        <div className="relative z-10 w-full max-w-md p-8 rounded-2xl bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-xl">
+          <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
             Enter Your Username
           </h2>
           <input
@@ -147,8 +164,10 @@ const Quiz = () => {
     );
   }
 
+  // Main quiz layout with a flex container for left (70%) and right (30%)
   return (
-    <div className="fixed w-full min-h-screen bg-slate-900 text-white overflow-hidden">
+    <div className="fixed w-[100vw] z-50 min-h-screen bg-slate-900 text-white overflow-hidden">
+      {/* Background video with overlay */}
       <div className="absolute inset-0 z-0">
         <video autoPlay loop muted className="absolute object-cover w-full h-full opacity-30">
           <source src={bgVid} type="video/mp4" />
@@ -156,26 +175,22 @@ const Quiz = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 to-blue-900/10 backdrop-blur-sm"></div>
       </div>
 
+      {/* Header section */}
       <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse mb-4 sm:mb-0">
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">
             {userName}
           </h1>
-          <div className="text-xl sm:text-2xl font-semibold text-blue-400 flex items-center">
-            Time Remaining: <span className="text-purple-400 ml-2">{timeRemaining}</span>
+          <div className="text-2xl font-semibold text-blue-400">
+            Time Remaining: <span className="text-purple-400">{timeRemaining}</span>
           </div>
-          {/* Mobile Leaderboard Toggle */}
-          <button
-            onClick={() => setShowLeaderboard(!showLeaderboard)}
-            className="sm:hidden fixed top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold z-50"
-          >
-            {showLeaderboard ? "Hide" : "Leaderboard"}
-          </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div className="w-full sm:w-[70%]">
-            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6 sm:p-8">
+        {/* Main content area with 70-30 split */}
+        <div className="flex gap-6">
+          {/* Quiz Questions Section (Left 70%) */}
+          <div className="w-[70%]">
+            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8">
               {!quizFinished ? (
                 <div className="space-y-8">
                   <div className="flex justify-between text-lg font-bold text-blue-400">
@@ -183,7 +198,7 @@ const Quiz = () => {
                     <span>Score: {score}</span>
                   </div>
                   {questions.length > 0 && (
-                    <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-8 leading-relaxed">
+                    <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed">
                       {questions[currentQuestion].question}
                     </h2>
                   )}
@@ -206,13 +221,13 @@ const Quiz = () => {
                 </div>
               ) : (
                 <div className="text-center space-y-8">
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white">Quiz Completed!</h2>
-                  <p className="text-xl sm:text-2xl text-blue-400">
+                  <h2 className="text-4xl font-bold text-white">Quiz Completed!</h2>
+                  <p className="text-2xl text-blue-400">
                     Your Score: <span className="text-purple-400">{score}</span> / {questions.length}
                   </p>
                   <button
                     onClick={restartQuiz}
-                    className="px-6 sm:px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
+                    className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
                   >
                     Restart Quiz
                   </button>
@@ -221,15 +236,13 @@ const Quiz = () => {
             </div>
           </div>
 
-          {/* Leaderboard - Hidden on mobile unless toggled */}
-          <div className={`w-full sm:w-[30%] ${showLeaderboard ? 'block' : 'hidden sm:block'} fixed sm:relative top-0 right-0 h-full sm:h-auto bg-slate-900 sm:bg-transparent z-40 sm:z-10`}>
-            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6 h-[70vh] sm:h-[70vh] flex flex-col">
-              <h3 className="text-xl sm:text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+          {/* Leaderboard Section (Right 30%) */}
+          <div className="w-[30%]">
+            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6 h-[70vh] flex flex-col">
+              <h3 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Leaderboard
               </h3>
-              {error ? (
-                <p className="text-red-400 text-center">Failed to load leaderboard</p>
-              ) : data && Array.isArray(data) ? (
+              {data && (
                 <div className="space-y-3 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-slate-800">
                   {data.map((item, index) => (
                     <div
@@ -238,14 +251,12 @@ const Quiz = () => {
                     >
                       <div className="flex items-center space-x-4">
                         <span className="text-lg font-semibold text-blue-400">#{index + 1}</span>
-                        <span className="text-white truncate">{item.userName}</span>
+                        <span className="text-white">{item.userName}</span>
                       </div>
                       <span className="text-purple-400 font-bold">{item.score}</span>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-white text-center">Loading leaderboard...</p>
               )}
             </div>
           </div>
