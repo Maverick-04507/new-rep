@@ -34,7 +34,7 @@ function Signin() {
         }
 
         try {
-            const res = await fetch("http://localhost:7000/api/v1/users/login", {
+            const res = await fetch("https://new-rep-uw0m.onrender.com/api/v1/users/login", {
                 method: "POST",
             
                 headers: {

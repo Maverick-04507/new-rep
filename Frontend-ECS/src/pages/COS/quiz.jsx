@@ -17,6 +17,7 @@ const Quiz = () => {
   const [timeRemaining, setTimeRemaining] = useState("");
   const [teamName, setTeamName] = useState("");
   const [isQuizStarted, setIsQuizStarted] = useState(false);
+  const [hasAttempted, setHasAttempted] = useState(false);
   const audioRef = useRef(null);
 
   // Auth context and navigation
@@ -26,13 +27,55 @@ const Quiz = () => {
   // SWR for leaderboard
   const fetcher = () =>
     axios
-      .get("http://localhost:7000/api/v1/quiz/leaderboard", {
+      .get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       })
       .then((res) => res.data);
   const { data: leaderboard, mutate } = useSWR(isLoggedIn ? "scores" : null, fetcher, {
     refreshInterval: 5000,
   });
+
+  // Load state from localStorage on mount
+  useEffect(() => {
+    if (isLoggedIn) {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const scholarID = userData.currentUser?.scholar_ID || null;
+      const savedState = JSON.parse(localStorage.getItem(`quizState_${scholarID}`)) || {};
+
+      if (savedState.hasAttempted) {
+        setHasAttempted(true);
+      }
+
+      if (savedState.isQuizStarted && !savedState.hasAttempted) {
+        setQuestions(savedState.questions || []);
+        setCurrentQuestion(savedState.currentQuestion || 0);
+        setScore(savedState.score || 0);
+        setQuizFinished(savedState.quizFinished || false);
+        setUserAnswers(savedState.userAnswers || []);
+        setTeamName(savedState.teamName || "");
+        setIsQuizStarted(savedState.isQuizStarted || false);
+      }
+    }
+  }, [isLoggedIn]);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoggedIn && isQuizStarted) {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const scholarID = userData.currentUser?.scholar_ID || null;
+      const quizState = {
+        questions,
+        currentQuestion,
+        score,
+        quizFinished,
+        userAnswers,
+        teamName,
+        isQuizStarted,
+        hasAttempted,
+      };
+      localStorage.setItem(`quizState_${scholarID}`, JSON.stringify(quizState));
+    }
+  }, [questions, currentQuestion, score, quizFinished, userAnswers, teamName, isQuizStarted, hasAttempted, isLoggedIn]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -43,10 +86,10 @@ const Quiz = () => {
 
   // Fetch questions when quiz starts
   useEffect(() => {
-    if (isLoggedIn && isQuizStarted) {
+    if (isLoggedIn && isQuizStarted && questions.length === 0) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("http://localhost:7000/api/v1/quiz/questions", {
+          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions", {
             headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
           });
           setQuestions(response.data);
@@ -56,7 +99,7 @@ const Quiz = () => {
       };
       fetchQuestions();
     }
-  }, [isLoggedIn, isQuizStarted]);
+  }, [isLoggedIn, isQuizStarted, questions.length]);
 
   // Autoplay audio when question changes
   useEffect(() => {
@@ -91,10 +134,35 @@ const Quiz = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Prevent text copying and context menu
+  useEffect(() => {
+    const preventCopy = (e) => {
+      if (e.target.closest('.no-copy')) {
+        e.preventDefault();
+      }
+    };
+
+    const preventContextMenu = (e) => {
+      if (e.target.closest('.no-copy')) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('copy', preventCopy);
+    document.addEventListener('contextmenu', preventContextMenu);
+
+    return () => {
+      document.removeEventListener('copy', preventCopy);
+      document.removeEventListener('contextmenu', preventContextMenu);
+    };
+  }, []);
+
   // Start quiz manually after team name entry
   const startQuiz = () => {
-    if (teamName.trim()) {
+    if (teamName.trim() && !hasAttempted) {
       setIsQuizStarted(true);
+    } else if (hasAttempted) {
+      alert("You have already attempted the quiz.");
     } else {
       alert("Please enter your team name to start the quiz.");
     }
@@ -127,7 +195,7 @@ const Quiz = () => {
 
       try {
         await axios.post(
-          "httpapi/v1/quiz/leaderboard",
+          "https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard",
           { userName: teamName, score: newScore },
           { headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` } }
         );
@@ -138,7 +206,7 @@ const Quiz = () => {
     }
   };
 
-  // Store result
+  // Store result and mark as attempted
   const storeResult = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -153,9 +221,10 @@ const Quiz = () => {
         completedAt: new Date().toISOString(),
       };
 
-      await axios.post("httpapi/v1/quiz/results", resultData, {
+      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       });
+      setHasAttempted(true);
     } catch (error) {
       console.error("Error storing result:", error);
     }
@@ -166,15 +235,22 @@ const Quiz = () => {
     if (quizFinished) storeResult();
   }, [quizFinished]);
 
-  // Restart quiz
+  // Restart quiz (disabled if already attempted)
   const restartQuiz = () => {
+    if (hasAttempted) {
+      alert("You cannot restart the quiz as you have already attempted it.");
+      return;
+    }
     setCurrentQuestion(0);
     setScore(0);
     setQuizFinished(false);
     setUserAnswer("");
     setUserAnswers([]);
-    setIsQuizStarted(false); // Reset to team name entry
-    setTeamName(""); // Clear team name
+    setIsQuizStarted(false);
+    setTeamName("");
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const scholarID = userData.currentUser?.scholar_ID || null;
+    localStorage.removeItem(`quizState_${scholarID}`);
   };
 
   // Render: Not logged in
@@ -192,28 +268,47 @@ const Quiz = () => {
     );
   }
 
-  // Render: Team name entry screen after login
+  // Render: Team name entry screen or attempted message
   if (!isQuizStarted) {
     return (
       <div className="fixed p-4 inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
         <div className="relative z-10 w-full max-w-md p-8 rounded-2xl bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-xl">
-          <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-            Enter Your Team Name
-          </h2>
-          <input
-            type="text"
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-            className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
-            placeholder="Team Name"
-          />
-          <button
-            onClick={startQuiz}
-            className="w-full mt-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
-          >
-            Start Quiz
-          </button>
+          {hasAttempted ? (
+            <>
+              <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                Quiz Already Attempted
+              </h2>
+              <p className="text-white text-center mb-6">
+                You have already completed the quiz. You cannot attempt it again.
+              </p>
+              <button
+                onClick={() => navigate("/")}
+                className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
+              >
+                Go to Homepage
+              </button>
+            </>
+          ) : (
+            <>
+              <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                Enter Your Team Name
+              </h2>
+              <input
+                type="text"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+                placeholder="Team Name"
+              />
+              <button
+                onClick={startQuiz}
+                className="w-full mt-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
+              >
+                Start Quiz
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -240,7 +335,7 @@ const Quiz = () => {
         </header>
 
         <div className="flex gap-6">
-          <section className="w-[70%] mobile:w-full ">
+          <section className="w-[70%] mobile:w-full">
             <div className="mobile:h-fit bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8 h-[70vh] overflow-y-auto [scrollbar-width:none]">
               {!quizFinished ? (
                 <div className="space-y-8">
@@ -249,7 +344,7 @@ const Quiz = () => {
                     <span>Score: {score}</span>
                   </div>
                   {questions.length > 0 && (
-                    <div className="space-y-6">
+                    <div className="space-y-6 no-copy" style={{ userSelect: 'none' }}>
                       <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed whitespace-pre-wrap">
                         {questions[currentQuestion].questionText}
                       </h2>
