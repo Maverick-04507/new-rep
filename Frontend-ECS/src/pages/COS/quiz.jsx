@@ -141,13 +141,13 @@ const Quiz = () => {
         now.getFullYear(),
         now.getMonth(),
         now.getDate(),
-        20, 45, 0
+        21, 23, 0
       );
       const endTime = new Date(
         now.getFullYear(),
         now.getMonth(),
         now.getDate(),
-        21, 6, 0
+        21, 30, 0
       );
 
       if (now < startTime) {
@@ -226,6 +226,9 @@ const Quiz = () => {
       alert("Please enter your team name to start the quiz.");
     }
   };
+
+
+
 
   // Submit answer: Allow submission only during the quiz window.
   const handleSubmit = async () => {
@@ -332,47 +335,42 @@ const Quiz = () => {
     );
   }
 
+
   // Render: Team name entry screen or attempted message
+// Render: Team name entry screen with quiz rules
   if (!isQuizStarted) {
     return (
       <div className="fixed p-4 inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
         <div className="relative z-10 w-full max-w-md p-8 rounded-2xl bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-xl">
-          {hasAttempted ? (
-            <>
-              <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                Quiz Already Attempted
-              </h2>
-              <p className="text-white text-center mb-6">
-                You have already completed the quiz. You cannot attempt it again.
-              </p>
-              <button
-                onClick={() => navigate("/")}
-                className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
-              >
-                Go to Homepage
-              </button>
-            </>
-          ) : (
-            <>
-              <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                Enter Your Team Name
-              </h2>
-              <input
-                type="text"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
-                placeholder="Team Name"
-              />
-              <button
-                onClick={startQuiz}
-                className="w-full mt-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
-              >
-                Start Quiz
-              </button>
-            </>
-          )}
+          <h2 className="text-4xl font-bold mb-4 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            Enter Your Team Name
+          </h2>
+          <input
+            type="text"
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
+            className="w-full p-4 mb-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+            placeholder="Team Name"
+          />
+          <div className="mb-6 text-white text-left">
+            <h3 className="font-bold mb-2">Quiz Rules:</h3>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>The quiz will run during the allotted time window.</li>
+              <li>Answer all questions to the best of your ability.</li>
+              <li>Do not use AI tools, chatbots, or any external help; your answer must reflect your own understanding.</li>
+              <li>Try avoiding filler words, unnecessary articles (e.g., "the"), and extra spaces.</li>
+              <li>Questions where two or more answers are asked add only one space between the words.</li>
+              <li>Keep your answers concise and precise.</li>
+              <li>No backtracking allowed once an answer is submitted.</li>
+            </ul>
+          </div>
+          <button
+            onClick={startQuiz}
+            className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
+          >
+            Start Quiz
+          </button>
         </div>
       </div>
     );

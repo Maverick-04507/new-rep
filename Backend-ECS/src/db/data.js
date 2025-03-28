@@ -116,6 +116,11 @@ export const questions = [
     mediaUrl:"https://i.postimg.cc/P5fgcYbQ/Whats-App-Image-2025-03-28-at-18-49-59-5d4df359.jpg",
     answer:"Draco dormiens nunquam titillandus Welcome to Hogwarts"
   },
-  
+  {
+    questionText:"A fractured genius, haunted by the echoes of choices unmade, tinkers with the seams of existence using little more than a microwave and sheer desperation. His reckless tampering births ripples that fracture realities, erasing loved ones, warping alliances, and painting timelines with tragedy. Yet the cruelest twist lies in the paradox: to fix the unraveling world, he must defy the very laws he weaponized, becoming both architect and casualty of a paradox where salvation demands becoming the villain. What scientific principle—akin to a flapping wing birthing storms—defines his Sisyphean battle against a clock no mortal was meant to rewind?",
+    questionType:"text",
+    mediaUrl:null,
+    answer:"butterfly effect"
+  }
 
 ];
