@@ -121,6 +121,36 @@ export const questions = [
     questionType:"text",
     mediaUrl:null,
     answer:"butterfly effect"
-  }
+  },
+  {
+    questionText:"A town with no exit traps wanderers in its web of endless roads. By day, survivors trust stones to shield them; by night, terrors wear smiles of those they’ve claimed. Among the shadows, a child lingers—pale, silent, guiding the lost toward answers that only deepen the maze. He is no savior, but a riddle wrapped in innocence. What do the trapped call this ghostly guide, whose help may doom them all?",
+    questionType:"text",
+    mediaUrl:null,
+    answer:"boy in white"
+  },
+  {
+    questionText: "Connect these into a classic: 659 Hz - 622 Hz – 659 Hz – 622 Hz – 659 Hz – 494 Hz – 587 Hz – 523 Hz – 440 Hz.",
+    questionType: "text",
+    mediaUrl: null,
+    answer: "Fur Elise"
+  },
+  {
+    questionText: "In Dark Souls, Gwyn, Lord of Sunlight, had several children, each with a role in maintaining his golden age. His daughter, Gwynevere, was the embodiment of warmth and comfort, while his youngest, Gwyndolin, was raised in secrecy. However, there was another—a firstborn, a mighty warrior who was once revered but later erased from history. His statues were removed, and his name was forgotten. Only remnants of his past remain, seen in the power of certain warriors who still follow his path.\nWho is this lost heir, cast out of Anor Londo and only remembered in whispers?",
+    questionType: "text",
+    mediaUrl: null,
+    answer: "Nameless King"
+},
+ {
+  questionText: "“I have a round belly, but I’m not a fruit. I’m white, but I’m not a cloud. I can fly, but I’m not a bird. I have a stomach full of mora, but I’m not a merchant. What am I?”\nIn a quest within Genshin Impact, Xingqiu, a character from one of the most highly acclaimed RPGs, presents this riddle. Can you unveil the answer to this intriguing riddle?",
+  questionType: "text",
+  mediaUrl: null,
+  answer: "Paimon"
+},
+{
+  questionText: "Two teens dive into a hidden war where ghosts claw from shadows and star-born fiends stalk forgotten ruins. Their mission? Reclaim a radiant artifact torn from one’s body—a relic humming with primal energy, sparking battles between spectral hoards and cosmic invaders. To retrieve it, they’ll bargain with tooth-hoarding spirits, outwit interdimensional mercenaries, and defy a truth: some treasures are better left lost. What golden object binds the living, the dead, and the alien in this spiraling madness?",
+  questionType: "text",
+  mediaUrl: null,
+  answer: "golden balls"
+} 
 
 ];

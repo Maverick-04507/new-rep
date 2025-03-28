@@ -141,13 +141,13 @@ const Quiz = () => {
         now.getFullYear(),
         now.getMonth(),
         now.getDate(),
-        21, 23, 0
+        22, 0, 0
       );
       const endTime = new Date(
         now.getFullYear(),
         now.getMonth(),
         now.getDate(),
-        21, 30, 0
+        22, 10, 0
       );
 
       if (now < startTime) {
