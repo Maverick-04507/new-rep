@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import bgVid from "./COS-BG.mp4";
+import bgVid from './COS-BG.mp4';
 import axios from "axios";
 import useSWR from "swr";
 import { AuthContext } from "../../context/authContext"; // Adjust path as needed
 import Signin from "../Signin";
+
+const API_URL="http://localhost:7000/";
+// const API_URL="https://new-rep-uw0m.onrender.com/";
 
 const Quiz = () => {
   // State declarations
@@ -18,7 +21,6 @@ const Quiz = () => {
   const [teamName, setTeamName] = useState("");
   const [isQuizStarted, setIsQuizStarted] = useState(false);
   const [hasAttempted, setHasAttempted] = useState(false);
-  const [quizAllowed, setQuizAllowed] = useState(false);
   const audioRef = useRef(null);
 
   // Auth context and navigation
@@ -28,15 +30,13 @@ const Quiz = () => {
   // SWR for leaderboard
   const fetcher = () =>
     axios
-      .get("/api/v1/quiz/leaderboard", {
+      .get(`${API_URL}api/v1/quiz/leaderboard`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       })
       .then((res) => res.data);
-  const { data: leaderboard, mutate } = useSWR(
-    isLoggedIn ? "scores" : null,
-    fetcher,
-    { refreshInterval: 5000 }
-  );
+  const { data: leaderboard, mutate } = useSWR(isLoggedIn ? "scores" : null, fetcher, {
+    refreshInterval: 5000,
+  });
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -51,6 +51,7 @@ const Quiz = () => {
 
       if (savedState.isQuizStarted && !savedState.hasAttempted) {
         setQuestions(savedState.questions || []);
+        console.log(savedState.questions);
         setCurrentQuestion(savedState.currentQuestion || 0);
         setScore(savedState.score || 0);
         setQuizFinished(savedState.quizFinished || false);
@@ -67,6 +68,7 @@ const Quiz = () => {
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const scholarID = userData.currentUser?.scholar_ID || null;
       const quizState = {
+        questions,
         currentQuestion,
         score,
         quizFinished,
@@ -77,7 +79,7 @@ const Quiz = () => {
       };
       localStorage.setItem(`quizState_${scholarID}`, JSON.stringify(quizState));
     }
-  }, [currentQuestion, score, quizFinished, userAnswers, teamName, isQuizStarted, hasAttempted, isLoggedIn]);
+  }, [questions, currentQuestion, score, quizFinished, userAnswers, teamName, isQuizStarted, hasAttempted, isLoggedIn]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -88,12 +90,15 @@ const Quiz = () => {
 
   // Fetch questions when quiz starts
   useEffect(() => {
+    console.log(isLoggedIn, isQuizStarted, questions.length);
     if (isLoggedIn && isQuizStarted && questions.length === 0) {
+      console.log("fetching questions");
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions", {
+          const response = await axios.get(`${API_URL}api/v1/quiz/questions`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
           });
+          console.log(response.data);
           setQuestions(response.data);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -111,114 +116,56 @@ const Quiz = () => {
       questions[currentQuestion]?.questionType === "audio" &&
       audioRef.current
     ) {
-      console.log("autoplaying audio");
-      console.log(questions[currentQuestion]);
-      // Pause any ongoing playback
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0; // Reset playback
-  
-      // Wait for the audio to load before playing
-      const playAudio = async () => {
-        try {
-          await audioRef.current.play();
-        } catch (err) {
-          console.log("Autoplay blocked:", err);
-          setTimeout(() => audioRef.current.play(), 100); // Retry after delay
-        }
-      };
-  
-      // Ensure the new source is loaded before playing
-      audioRef.current.oncanplaythrough = playAudio;
       audioRef.current.load();
+      audioRef.current.play().catch((err) => {
+        console.log("Autoplay blocked:", err);
+        setTimeout(() => audioRef.current.play(), 100);
+      });
     }
   }, [isQuizStarted, currentQuestion, questions]);
 
-  // Quiz timer: Manage quiz window from 19:00 to 20:00 (7 PM to 8 PM) for testing
+  // Countdown timer
   useEffect(() => {
-    const updateQuizTimer = () => {
+    const updateTimer = () => {
       const now = new Date();
-      // For testing: set quiz start at 19:00 and end at 20:00
-      const startTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        20, 45, 0
-      );
-      const endTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        21, 6, 0
-      );
-
-      if (now < startTime) {
-        // Before quiz start: show countdown until quiz starts
-        setQuizAllowed(false);
-        const diff = startTime - now;
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeRemaining(
-          `${hours.toString().padStart(2, "0")}:${minutes
-            .toString()
-            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-        );
-      } else if (now >= startTime && now < endTime) {
-        // Active quiz window: show countdown until quiz ends
-        setQuizAllowed(true);
-        const diff = endTime - now;
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeRemaining(
-          `${hours.toString().padStart(2, "0")}:${minutes
-            .toString()
-            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-        );
-      } else {
-        // After quiz window ends.
-        setQuizAllowed(false);
-        setTimeRemaining("00:00:00");
-        if (isQuizStarted && !quizFinished) {
-          setQuizFinished(true);
-        }
-      }
+      const target = new Date().setHours(22, 0, 0, 0);
+      const adjustedTarget = now > target ? target + 24 * 60 * 60 * 1000 : target;
+      const diff = adjustedTarget - now;
+      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, "0");
+      const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, "0");
+      const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, "0");
+      setTimeRemaining(`${hours}:${minutes}:${seconds}`);
     };
 
-    updateQuizTimer();
-    const timerId = setInterval(updateQuizTimer, 1000);
-    return () => clearInterval(timerId);
-  }, [isQuizStarted, quizFinished]);
+    const timer = setInterval(updateTimer, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Prevent text copying and context menu
   useEffect(() => {
     const preventCopy = (e) => {
-      if (e.target.closest(".no-copy")) {
+      if (e.target.closest('.no-copy')) {
         e.preventDefault();
       }
     };
 
     const preventContextMenu = (e) => {
-      if (e.target.closest(".no-copy")) {
+      if (e.target.closest('.no-copy')) {
         e.preventDefault();
       }
     };
 
-    document.addEventListener("copy", preventCopy);
-    document.addEventListener("contextmenu", preventContextMenu);
+    document.addEventListener('copy', preventCopy);
+    document.addEventListener('contextmenu', preventContextMenu);
 
     return () => {
-      document.removeEventListener("copy", preventCopy);
-      document.removeEventListener("contextmenu", preventContextMenu);
+      document.removeEventListener('copy', preventCopy);
+      document.removeEventListener('contextmenu', preventContextMenu);
     };
   }, []);
 
-  // Start quiz manually after team name entry: Allow starting only if within quiz window.
+  // Start quiz manually after team name entry
   const startQuiz = () => {
-    if (!quizAllowed) {
-      alert("Quiz can only be started between 7 PM and 8 PM.");
-      return;
-    }
     if (teamName.trim() && !hasAttempted) {
       setIsQuizStarted(true);
     } else if (hasAttempted) {
@@ -228,17 +175,12 @@ const Quiz = () => {
     }
   };
 
-  // Submit answer: Allow submission only during the quiz window.
+  // Submit answer
   const handleSubmit = async () => {
-    if (!quizAllowed) {
-      alert("Quiz time is over. No more submissions allowed.");
-      return;
-    }
     if (!questions.length) return;
 
     const currentQ = questions[currentQuestion];
-    const isCorrect =
-      userAnswer.trim().toLowerCase() === currentQ.answer.toLowerCase();
+    const isCorrect = userAnswer.trim().toLowerCase() === currentQ.answer.toLowerCase();
     const answerData = {
       questionId: currentQ._id,
       userAnswer: userAnswer.trim().toLowerCase(),
@@ -260,7 +202,7 @@ const Quiz = () => {
 
       try {
         await axios.post(
-          "https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard",
+          `${API_URL}api/v1/quiz/leaderboard`,
           { userName: teamName, score: newScore },
           { headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` } }
         );
@@ -286,7 +228,7 @@ const Quiz = () => {
         completedAt: new Date().toISOString(),
       };
 
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData, {
+      await axios.post(`${API_URL}api/v1/quiz/results`, resultData, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       });
       setHasAttempted(true);
@@ -404,13 +346,13 @@ const Quiz = () => {
             <div className="mobile:h-fit bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8 h-[70vh] overflow-y-auto [scrollbar-width:none]">
               {!quizFinished ? (
                 <div className="space-y-8">
-                  <div className="flex justify-between text-lg font-bold text-blue-400  bg-slate-800/70 backdrop-blur-xl z-10 py-2">
+                  <div className="flex justify-between text-lg font-bold text-blue-400 sticky top-0 bg-slate-800/70 backdrop-blur-xl z-10 py-2">
                     <span>Question {currentQuestion + 1} / {questions.length}</span>
                     <span>Score: {score}</span>
                   </div>
                   {questions.length > 0 && (
-                    <div className="space-y-6 no-copy" style={{ userSelect: "none" }}>
-                      <h2 className="text-3xl mobile:text-sm mobile:font-medium font-semibold text-white mb-8 leading-relaxed whitespace-pre-wrap">
+                    <div className="space-y-6 no-copy" style={{ userSelect: 'none' }}>
+                      <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed whitespace-pre-wrap">
                         {questions[currentQuestion].questionText}
                       </h2>
                       {questions[currentQuestion].questionType === "image" &&
@@ -440,7 +382,6 @@ const Quiz = () => {
                     <input
                       type="text"
                       value={userAnswer}
-                      onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
                       onChange={(e) => setUserAnswer(e.target.value)}
                       className="w-full p-4 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
                       placeholder="Type your answer here..."
