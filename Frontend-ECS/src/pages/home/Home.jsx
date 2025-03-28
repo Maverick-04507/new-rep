@@ -31,8 +31,9 @@ export default function Home() {
                     </span>
                 </div>
 
-                <div className='py-10 mobile:flex justify-center w-full'>
-                    <h1 className='text-4xl text-center font-semibold border w-[60vw]'>Chamber of Secrets is Live-Click to Enter the arena</h1>
+                <div className='py-10 flex flex-col text-center justify-center w-full'>
+                    <h1 className='text-4xl mobile:text-xl text-center font-semibold  w-full'>Chamber of Secrets is <p className='text-red-500 font-bold'>Live</p></h1>
+                    <a href="https://chamberofsecrets.vercel.app/" className='text-2xl mobile:text-lg  px-4 py-2 rounded-md underline'>Click to Enter the arena</a>
                 </div>
 
             </div>
