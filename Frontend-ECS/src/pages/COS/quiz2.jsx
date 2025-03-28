@@ -6,6 +6,9 @@ import useSWR from "swr";
 import { AuthContext } from "../../context/authContext"; // Adjust path as needed
 import Signin from "../Signin";
 
+const API_URL="http://localhost:7000/";
+// const API_URL="https://new-rep-uw0m.onrender.com/";
+
 const Quiz = () => {
   // State declarations
   const [questions, setQuestions] = useState([]);
@@ -27,7 +30,7 @@ const Quiz = () => {
   // SWR for leaderboard
   const fetcher = () =>
     axios
-      .get("/api/v1/quiz/leaderboard", {
+      .get(`${API_URL}api/v1/quiz/leaderboard`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       })
       .then((res) => res.data);
@@ -48,6 +51,7 @@ const Quiz = () => {
 
       if (savedState.isQuizStarted && !savedState.hasAttempted) {
         setQuestions(savedState.questions || []);
+        console.log(savedState.questions);
         setCurrentQuestion(savedState.currentQuestion || 0);
         setScore(savedState.score || 0);
         setQuizFinished(savedState.quizFinished || false);
@@ -86,12 +90,15 @@ const Quiz = () => {
 
   // Fetch questions when quiz starts
   useEffect(() => {
+    console.log(isLoggedIn, isQuizStarted, questions.length);
     if (isLoggedIn && isQuizStarted && questions.length === 0) {
+      console.log("fetching questions");
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions", {
+          const response = await axios.get(`${API_URL}api/v1/quiz/questions`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
           });
+          console.log(response.data);
           setQuestions(response.data);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -195,7 +202,7 @@ const Quiz = () => {
 
       try {
         await axios.post(
-          "https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard",
+          `${API_URL}api/v1/quiz/leaderboard`,
           { userName: teamName, score: newScore },
           { headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` } }
         );
@@ -221,7 +228,7 @@ const Quiz = () => {
         completedAt: new Date().toISOString(),
       };
 
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData, {
+      await axios.post(`${API_URL}api/v1/quiz/results`, resultData, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       });
       setHasAttempted(true);
