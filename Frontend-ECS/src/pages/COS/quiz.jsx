@@ -26,7 +26,7 @@ const Quiz = () => {
   // SWR for leaderboard
   const fetcher = () =>
     axios
-      .get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", {
+      .get("http://localhost:7000/api/v1/quiz/leaderboard", {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       })
       .then((res) => res.data);
@@ -46,7 +46,7 @@ const Quiz = () => {
     if (isLoggedIn && isQuizStarted) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions", {
+          const response = await axios.get("http://localhost:7000/api/v1/quiz/questions", {
             headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
           });
           setQuestions(response.data);
@@ -127,7 +127,7 @@ const Quiz = () => {
 
       try {
         await axios.post(
-          "https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard",
+          "httpapi/v1/quiz/leaderboard",
           { userName: teamName, score: newScore },
           { headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` } }
         );
@@ -153,7 +153,7 @@ const Quiz = () => {
         completedAt: new Date().toISOString(),
       };
 
-      await axios.post("https://new-rep-uw0m.onrender.com/api/v1/quiz/results", resultData, {
+      await axios.post("httpapi/v1/quiz/results", resultData, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       });
     } catch (error) {
@@ -195,7 +195,7 @@ const Quiz = () => {
   // Render: Team name entry screen after login
   if (!isQuizStarted) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
+      <div className="fixed p-4 inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900 z-50">
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
         <div className="relative z-10 w-full max-w-md p-8 rounded-2xl bg-slate-800/80 backdrop-blur-lg border border-slate-700 shadow-xl">
           <h2 className="text-4xl font-bold mb-6 text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
@@ -221,7 +221,7 @@ const Quiz = () => {
 
   // Render: Main quiz UI
   return (
-    <div className="fixed w-screen min-h-screen bg-slate-900 text-white overflow-hidden z-50">
+    <div className="fixed mobile:absolute w-screen min-h-screen bg-slate-900 text-white overflow-hidden z-50">
       <div className="absolute inset-0 z-0">
         <video autoPlay loop muted className="object-cover w-full h-full opacity-30">
           <source src={bgVid} type="video/mp4" />
@@ -240,8 +240,8 @@ const Quiz = () => {
         </header>
 
         <div className="flex gap-6">
-          <section className="w-[70%]">
-            <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8 h-[70vh] overflow-y-auto [scrollbar-width:none]">
+          <section className="w-[70%] mobile:w-full ">
+            <div className="mobile:h-fit bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-8 h-[70vh] overflow-y-auto [scrollbar-width:none]">
               {!quizFinished ? (
                 <div className="space-y-8">
                   <div className="flex justify-between text-lg font-bold text-blue-400 sticky top-0 bg-slate-800/70 backdrop-blur-xl z-10 py-2">
@@ -287,7 +287,7 @@ const Quiz = () => {
                     <button
                       onClick={handleSubmit}
                       disabled={!questions.length}
-                      className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="mobile:text-sm w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Submit Answer
                     </button>
@@ -300,17 +300,17 @@ const Quiz = () => {
                     Your Score: <span className="text-purple-400">{score}</span> / {questions.length}
                   </p>
                   <button
-                    onClick={restartQuiz}
+                    onClick={() => navigate("/")}
                     className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-lg uppercase tracking-wide hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
                   >
-                    Restart Quiz
+                    Go to Homepage
                   </button>
                 </div>
               )}
             </div>
           </section>
 
-          <aside className="w-[30%]">
+          <aside className="w-[30%] mobile:w-full">
             <div className="bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-700 shadow-2xl p-6 h-[70vh] flex flex-col">
               <h3 className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Leaderboard
