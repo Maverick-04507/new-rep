@@ -6,6 +6,7 @@ import useSWR from "swr";
 import { AuthContext } from "../../context/authContext"; // Adjust path as needed
 import Signin from "../Signin";
 
+
 const Quiz = () => {
   // State declarations
   const [questions, setQuestions] = useState([]);
@@ -215,7 +216,7 @@ const Quiz = () => {
   // Start quiz manually after team name entry: Allow starting only if within quiz window.
   const startQuiz = () => {
     if (!quizAllowed) {
-      alert("Quiz can only be started between 7 PM and 8 PM.");
+      alert("Quiz can only be started after 11 PM");
       return;
     }
     if (teamName.trim() && !hasAttempted) {
@@ -484,7 +485,7 @@ const Quiz = () => {
                         <span className="text-lg font-semibold text-blue-400">#{index + 1}</span>
                         <span className="text-white">{item.userName}</span>
                       </div>
-                      <span className="text-purple-400 font-bold">{item.score}</span>
+                      {/* <span className="text-purple-400 font-bold">{item.score}</span> */}
                     </div>
                   ))}
                 </div>
