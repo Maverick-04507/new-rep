@@ -110,8 +110,6 @@ export const questions = [
     mediaUrl:null,
     answer:"Tom"
   },
-  {
-    
-  }
+ 
 
 ];

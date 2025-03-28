@@ -28,7 +28,7 @@ const Quiz = () => {
   // SWR for leaderboard
   const fetcher = () =>
     axios
-      .get("/api/v1/quiz/leaderboard", {
+      .get("https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard", {
         headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
       })
       .then((res) => res.data);
