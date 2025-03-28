@@ -88,7 +88,7 @@ const Quiz = () => {
     if (isLoggedIn && isQuizStarted && questions.length === 0) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("api/v1/quiz/questions", {
+          const response = await axios.get("/api/v1/quiz/questions", {
             headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
           });
           setQuestions(response.data);
@@ -108,14 +108,28 @@ const Quiz = () => {
       questions[currentQuestion]?.questionType === "audio" &&
       audioRef.current
     ) {
+      console.log("autoplaying audio");
+      console.log(questions[currentQuestion]);
+      // Pause any ongoing playback
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0; // Reset playback
+  
+      // Wait for the audio to load before playing
+      const playAudio = async () => {
+        try {
+          await audioRef.current.play();
+        } catch (err) {
+          console.log("Autoplay blocked:", err);
+          setTimeout(() => audioRef.current.play(), 100); // Retry after delay
+        }
+      };
+  
+      // Ensure the new source is loaded before playing
+      audioRef.current.oncanplaythrough = playAudio;
       audioRef.current.load();
-      audioRef.current.play().catch((err) => {
-        console.log("Autoplay blocked:", err);
-        setTimeout(() => audioRef.current.play(), 100);
-      });
     }
   }, [isQuizStarted, currentQuestion, questions]);
-
+  
   // Countdown timer
   useEffect(() => {
     const updateTimer = () => {
@@ -344,7 +358,7 @@ const Quiz = () => {
                   </div>
                   {questions.length > 0 && (
                     <div className="space-y-6 no-copy" style={{ userSelect: 'none' }}>
-                      <h2 className="text-3xl font-semibold text-white mb-8 leading-relaxed whitespace-pre-wrap">
+                      <h2 className="text-3xl mobile:text-sm mobile:font-medium font-semibold text-white mb-8 leading-relaxed whitespace-pre-wrap">
                         {questions[currentQuestion].questionText}
                       </h2>
                       {questions[currentQuestion].questionType === "image" &&
