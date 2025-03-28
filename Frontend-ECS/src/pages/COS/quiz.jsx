@@ -88,7 +88,7 @@ const Quiz = () => {
     if (isLoggedIn && isQuizStarted && questions.length === 0) {
       const fetchQuestions = async () => {
         try {
-          const response = await axios.get("https://new-rep-uw0m.onrender.com/api/v1/quiz/questions", {
+          const response = await axios.get("api/v1/quiz/questions", {
             headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` },
           });
           setQuestions(response.data);
@@ -194,7 +194,7 @@ const Quiz = () => {
 
       try {
         await axios.post(
-          "https://new-rep-uw0m.onrender.com/api/v1/quiz/leaderboard",
+          "/api/v1/quiz/leaderboard",
           { userName: teamName, score: newScore },
           { headers: { Authorization: `Bearer ${localStorage.getItem("accesstoken")}` } }
         );
