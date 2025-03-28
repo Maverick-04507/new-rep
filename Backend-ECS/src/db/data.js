@@ -2,9 +2,9 @@
 
 export const questions = [
   {
-    questionText: "The dialogue that you heard in the audio is from a popular movie from the 20th century. In the movie, the protagonist, now leading his family’s empire, travels to a vibrant foreign city to negotiate with the antagonist, a cunning and wealthy rival. During a grand New Year’s Eve celebration, amidst fireworks and chaos, the protagonist’s older brother lets slip a crucial detail—he’s already familiar with the antagonist. This moment exposes the brother’s betrayal and confirms the antagonist’s plot to eliminate the protagonist. In which city does this tense revelation unfold?",
-    questionType: "audio",
-    mediaUrl: "/src/pages/COS/music/sample.mp3",
+    questionText: "The dialogue 'I am going to make him an offer he can't refuse' is from a popular movie from the 20th century. In the movie, the protagonist, now leading his family’s empire, travels to a vibrant foreign city to negotiate with the antagonist, a cunning and wealthy rival. During a grand New Year’s Eve celebration, amidst fireworks and chaos, the protagonist’s older brother lets slip a crucial detail—he’s already familiar with the antagonist. This moment exposes the brother’s betrayal and confirms the antagonist’s plot to eliminate the protagonist. In which city does this tense revelation unfold?",
+    questionType: "text",
+    mediaUrl: null,
     answer: "Havana"
   },
   {
@@ -110,6 +110,12 @@ export const questions = [
     mediaUrl:null,
     answer:"Tom"
   },
- 
+  {
+    questionText:"Decipher this sentence",
+    questionType:"image",
+    mediaUrl:"https://i.postimg.cc/P5fgcYbQ/Whats-App-Image-2025-03-28-at-18-49-59-5d4df359.jpg",
+    answer:"Draco dormiens nunquam titillandus Welcome to Hogwarts"
+  },
+  
 
 ];

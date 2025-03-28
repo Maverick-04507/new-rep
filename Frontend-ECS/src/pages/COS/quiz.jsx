@@ -112,7 +112,6 @@ const Quiz = () => {
       audioRef.current
     ) {
       console.log("autoplaying audio");
-      console.log(questions[currentQuestion]);
       // Pause any ongoing playback
       audioRef.current.pause();
       audioRef.current.currentTime = 0; // Reset playback

@@ -60,14 +60,11 @@ export async function storeResult(req, res) {
     if (!Array.isArray(answers)) {
       return res.status(400).json({ error: "Answers must be an array" });
     }
-    // Optional: Validate scholar_ID if it’s required
-    // if (!scholar_ID) {
-    //   return res.status(400).json({ error: "Scholar ID is required" });
-    // }
+    // Optional: Validate scholar_ID if needed
 
     // Store in database
     const result = await Result.create({
-      username,
+      username: teamname,
       scholar_ID, // Include scholar_ID from request body
       answers,
       attempts,
@@ -91,14 +88,18 @@ export async function dropResult(req, res) {
   }
 }
 
-// CREATE Leaderboard
+// CREATE Leaderboard with composite score to break ties by submission time
 export async function createLeaderBoard(req, res) {
   const { userName, score } = req.body;
 
   try {
-    await redis.zadd("scores", score, userName);
+    const now = Date.now(); // current timestamp in milliseconds
+    // Compute composite score: higher integer score plus a fractional component based on submission time.
+    // Subtract current timestamp from a large constant to give a higher fractional value to earlier submissions.
+    const compositeScore = score + (1000000000000 - now) / 1000000000000;
+    await redis.zadd("scores", compositeScore, userName);
     const rank = await redis.zrevrank("scores", userName);
-    console.log(userName, score);
+    console.log(userName, compositeScore);
     res.status(200).json({ success: true, rank });
   } catch (error) {
     console.error("Error creating leaderboard entry:", error);
@@ -115,7 +116,7 @@ export async function getLeaderBoard(req, res) {
     for (let i = 0; i < rawScores.length; i += 2) {
       scores.push({
         userName: rawScores[i],
-        score: parseInt(rawScores[i + 1], 10),
+        score: parseFloat(rawScores[i + 1]), // composite score stored
       });
     }
 
