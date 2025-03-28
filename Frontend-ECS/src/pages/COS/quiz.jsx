@@ -64,7 +64,6 @@ const Quiz = () => {
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const scholarID = userData.currentUser?.scholar_ID || null;
       const quizState = {
-        questions,
         currentQuestion,
         score,
         quizFinished,
@@ -75,7 +74,7 @@ const Quiz = () => {
       };
       localStorage.setItem(`quizState_${scholarID}`, JSON.stringify(quizState));
     }
-  }, [questions, currentQuestion, score, quizFinished, userAnswers, teamName, isQuizStarted, hasAttempted, isLoggedIn]);
+  }, [currentQuestion, score, quizFinished, userAnswers, teamName, isQuizStarted, hasAttempted, isLoggedIn]);
 
   // Redirect if not logged in
   useEffect(() => {
